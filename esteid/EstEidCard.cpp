@@ -52,10 +52,14 @@ EstEidCard::CardVersion atr_to_version(string &ATR)
 		ATR == "3BFE1800008031FE45803180664090A4561B168301900086")
 		return EstEidCard::VER_3_0;
 
-	// ID-kaart 3.0 2011 2k JavaCard dev2
+	// ID-kaart 3.0 2011 2k JavaCard dev2 warm
 	if (ATR == "3BFE1800008031FE45803180664090A4162A0083019000E1")
 		return EstEidCard::VER_3_0;
 
+	// ID-kaart 3.0 2011 2k JavaCard production warm (18.01.2011+)
+	if (ATR == "3BFE1800008031FE45803180664090A4162A00830F9000EF")
+		return EstEidCard::VER_3_0;
+	
 	return EstEidCard::VER_INVALID;
 }
 
