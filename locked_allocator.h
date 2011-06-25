@@ -50,10 +50,11 @@ public:
 		p->T::~T();
 	}
 
-	explicit locked_allocator() 
+	explicit locked_allocator()
 	{
 	}
-	locked_allocator(const locked_allocator<T> &other) 
+	template<class U>
+	locked_allocator(const locked_allocator<U> &other)
 	{
 	}
 	~locked_allocator()
@@ -81,6 +82,8 @@ public:
 		return al.max_size();
 	}
 
+	template <class U>
+	locked_allocator<T>& operator=(const locked_allocator<U> &) { return *this; }
 };
 
 template <class T>

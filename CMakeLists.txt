@@ -6,10 +6,9 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 include(InstallSettings)
 
-set(SMARTCARDPP_VERSION "3.2.0")
+set(SMARTCARDPP_VERSION "3.1.0")
 
 if(UNIX)
-    find_package(LibDL)
     find_package(PCSCLite REQUIRED)
 endif(UNIX)
 
@@ -28,7 +27,6 @@ endif(MSVC)
 
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${LIBDL_INCLUDE_DIR}
     ${PCSCLITE_INCLUDE_DIR}
 )
 
@@ -109,11 +107,11 @@ if(WIN32)
     set(WIN_LIBRARIES ws2_32)
 endif(WIN32)
 
-target_link_libraries(smartcardpp ${LIBDL_LIBRARIES} ${WIN_LIBRARIES})
+target_link_libraries(smartcardpp ${CMAKE_DL_LIBS} ${WIN_LIBRARIES})
 
 set_target_properties(smartcardpp PROPERTIES VERSION ${SMARTCARDPP_VERSION} SOVERSION 0)
 install(TARGETS smartcardpp DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
 
 add_executable(card-test compat_getopt.c compat_getpass.c test.cpp)
-target_link_libraries(card-test smartcardpp ${LIBDL_LIBRARIES})
+target_link_libraries(card-test smartcardpp ${CMAKE_DL_LIBS})
 install(TARGETS card-test DESTINATION ${BIN_INSTALL_DIR})
