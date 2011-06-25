@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 include(InstallSettings)
 
-set(SMARTCARDPP_VERSION "0.1.0")
+set(SMARTCARDPP_VERSION "3.1.0")
 
 if(UNIX)
     find_package(LibDL)
@@ -19,6 +19,11 @@ if(MSVC)
         # http://social.msdn.microsoft.com/Forums/en-US/vcplus2008prerelease/thread/fa969def-911e-4760-867d-5a06a37ed048
         -D_SECURE_SCL=0
     )
+    # disable incremental linking to work around a missing MSVCR90D.dll with
+    # debug builds
+    SET(CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
+    SET(CMAKE_SHARED_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
+    SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
 endif(MSVC)
 
 include_directories(
@@ -40,27 +45,21 @@ endif(MSVC AND USE_STATIC_RUNTIME)
 
 set(smartcard_SRCS
     CardBase.cpp
-    CTAPIManager.cpp
     DynamicLibrary.cpp
     locked_allocator.cpp
     PCSCManager.cpp
     SCError.cpp
-    SmartCardManager.cpp
     types.cpp
 )
 
 set(esteid_SRCS
     esteid/EstEidCard.cpp
-    esteid/EstEidCardMaintainer.cpp
 )
-
-set(sim_SRCS sim/SIMCard.cpp)
 
 # Public headers which get installed into smartcardpp/ directory
 set(smartcard_HDRS
     CardBase.h
     common.h
-    CTAPIManager.h
     DynamicLibrary.h
     helperMacro.h
     internal-pcsc22.h
@@ -70,18 +69,14 @@ set(smartcard_HDRS
     PinString.h
     SCError.h
     smartcardpp.h
-    SmartCardManager.h
     types.h
 )
 
 # Public headers which get installed into smartcardpp/esteid/ directory
 set(esteid_HDRS
     esteid/EstEidCard.h
-    esteid/EstEidCardMaintainer.h
 )
 
-# Public headers which get installed into smartcardpp/sim/ directory
-set(sim_HDRS sim/SIMCard.h)
 
 set(GENERATED_HEADERS "")
 macro(stage_smartcard_headers HEADERS)
@@ -101,20 +96,12 @@ endmacro(stage_smartcard_headers)
 
 stage_smartcard_headers("${smartcard_HDRS}")
 stage_smartcard_headers("${esteid_HDRS}")
-stage_smartcard_headers("${sim_HDRS}")
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/smartcardpp DESTINATION ${INCLUDE_INSTALL_DIR})
 
-if(WIN32 OR APPLE)
-    set(LIB_TYPE STATIC)
-else(WIN32 OR APPLE)
-    set(LIB_TYPE SHARED)
-endif(WIN32 OR APPLE)
-
-add_library(smartcardpp ${LIB_TYPE}
+add_library(smartcardpp STATIC
     ${GENERATED_HEADERS}
     ${smartcard_SRCS}
-    ${sim_SRCS}
     ${esteid_SRCS}
 )
 
@@ -127,6 +114,6 @@ target_link_libraries(smartcardpp ${LIBDL_LIBRARIES} ${WIN_LIBRARIES})
 set_target_properties(smartcardpp PROPERTIES VERSION ${SMARTCARDPP_VERSION} SOVERSION 0)
 install(TARGETS smartcardpp DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
 
-add_executable(card-test test.cpp)
-target_link_libraries(card-test smartcardpp)
+add_executable(card-test compat_getopt.c compat_getpass.c test.cpp)
+target_link_libraries(card-test smartcardpp ${LIBDL_LIBRARIES})
 install(TARGETS card-test DESTINATION ${BIN_INSTALL_DIR})

@@ -5,11 +5,10 @@
 
 #include <smartcardpp/common.h>
 #include <smartcardpp/CardBase.h>
+#include <smartcardpp/PCSCManager.h>
 #include <smartcardpp/DynamicLibrary.h>
 #include <smartcardpp/esteid/EstEidCard.h>
 #include <smartcardpp/SCError.h>
-#include <smartcardpp/sim/SIMCard.h>
-#include <smartcardpp/SmartCardManager.h>
 #include <smartcardpp/types.h>
 
 #endif // SMARTCARDPP_H
